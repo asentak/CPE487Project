@@ -43,7 +43,7 @@ This project aims to mimic the functionality of Crossy Road: a game where a char
 
 ![CableImage](images/Cable.png)
 
-3. Micro USB Cable (Connection from Board to Computer
+3. Micro USB Cable (Connection from Board to Computer)
 
 ![MicroUSB](images/microusb.png)
 
@@ -1356,8 +1356,8 @@ sw => sw --added for switches for character changes
 	- Found what we liked and wanted to fix <br>
 
 **Week of 11/17**
-- Added in new game functionality (wrap around screen, changing jumping instead of gliding)
-- Finished up most of graphics (grass & roads for background, puddles, cars, duck character)
+- Added in new game functionality (wrap around screen, changing to hopping instead of gliding, varying car speeds)
+- Finished up most of graphics (grass & roads for background, puddles, cars, duck character, color layover process)
 - Added in new scoring, made it possible to win the game + made a good job sign to track win when get to top of screen
  <br>
 
