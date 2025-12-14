@@ -230,7 +230,297 @@ A few other files were included in the starter code project that we did not use 
 <br> We made the following modifications to our code: 
 <br>
 
+**1. Replaced Gliding Character Movement With Hopping**
+- From the starter code the moving mechanism for the frog was a glide. When you held down any button the character would move continually in that direction. We didn’t love this movement because it didn't match the classic frogger and crossy road game. Therefore we updated the code to introduce a hopping movement mechanic by adding rising-edge detection and a fixed hop distance to replace the previous continuous gliding behavior. Instead of moving every clock cycle while a button is held, the code now checks for the moment a button transitions from unpressed to pressed, allowing the game character to move only once per button press. This is achieved using new signals for each direction and a defined frog_hop value that sets the exact pixel distance of each jump. Together, these changes create precise, discrete hops that better match the intended gameplay style, making the game character’s movement feel more consistent with classic arcade mechanics.
+#### Frog.vhd
+```
+-- current frog position (initialized towards bottom center of the screen) 
+	SIGNAL frog_x  : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00110010000"; -- 400
+	SIGNAL frog_y  : STD_LOGIC_VECTOR(10 DOWNTO 0) := "01001000100"; -- 580
 
+	-- added this signal to store the distance the character hops for each button press
+	SIGNAL frog_hop : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00000010100"; -- 20 pixels
+	
+	-- added in these button edge detection signals so the character can only move once per button press (hopping effect)
+	SIGNAL up_last : STD_LOGIC := '0';
+	SIGNAL down_last : STD_LOGIC := '0';
+	SIGNAL left_last : STD_LOGIC := '0';
+	SIGNAL right_last : STD_LOGIC := '0';
+---------------------------------------------------------------------------------------------------------------------
+-- Inside mfrog process
+--added these lines to update prev_frog positions everytime the character moves
+	       prev_frog_x <= frog_x;
+	       prev_frog_y <= frog_y;
+
+	       -- Edge detection: added to move once  per button press
+	       IF up = '1' AND up_last = '0' THEN
+	           frog_y <= frog_y - frog_hop; --hop forward
+	           -- Add a point to the score for moving forward to a new y position
+	           IF (frog_y - frog_hop) < max_forward_y AND s_score < "11111111" THEN
+	               s_score <= s_score + 1;
+	               max_forward_y <= frog_y - frog_hop;  --updates max forward y to new furthest y position
+	           END IF;
+	       ELSIF down = '1' AND down_last = '0' THEN
+	           frog_y <= frog_y + frog_hop; --hop backward
+	       ELSIF left = '1' AND left_last = '0' THEN
+	           frog_x <= frog_x - frog_hop; --hop left
+	       ELSIF right = '1' AND right_last = '0' THEN
+	           frog_x <= frog_x + frog_hop; --hop right
+	       END IF;
+	       
+	       -- Store status of recent buttn press so can track if its a new click or if just holding down the button
+	       up_last <= up;
+	       down_last <= down;
+	       left_last <= left;
+	       right_last <= right;
+```
+
+**2. Scoring Changed To +1 For Each New Hop Forward & +10 For Each Coin Collected**
+- The starter code used a scoring system that only had +1 for coins picked up. We wanted to follow a similar method to the crossy road game where for each forward movement you gain a point. We updated the code so the score signal was expanded from 2 bits to 8 bits, allowing values up to 255 so the player’s progress could be tracked without overflow. A forward hop now adds 1 point by checking if the frog reaches a new minimum y-position, encouraging players to move upward toward the goal. Additionally, each coin collected awards 10 points. The starter code included a function that when the coin was picked up it would disappear from the gameplay screen indicating it was picked up and not creating an endless loop of getting points so we didn’t have to edit this part. In the display module, the score is converted from binary to decimal by breaking it into hundreds, tens, and ones digits so it can be shown correctly on the seven-segment displays. We also didn’t need to edit the code that showed the current score on the board because that function was working correctly. All together our changes created a more engaging scoring mechanic that rewards the player to progress towards the end goal and collect coins along the way.
+#### Frog.vhd
+```
+score : OUT STD_LOGIC_VECTOR (7 DOWNTO 0); --changed from 1 downto 0 to 7 downto 0 to ensure high enough scoring could be stored
+
+SIGNAL s_score : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000000"; --changed from 1 downto 0 to 7 downto 0 to ensure high enough scoring could be stored
+
+score <= s_score;
+---------------------------------------------------------------------------------------------------------------------------------
+
+-- Add a point to the score for moving forward to a new y position
+ IF (frog_y - frog_hop) < max_forward_y AND s_score < "11111111" THEN
+	s_score <= s_score + 1;
+------------------------------------------------------------------------------------------------------------------------------
+-- Coin collection logic (took ideas from starter code and just changed a bit to fit our project)
+
+			-- if the coin is not yet collected.....   
+	       IF coin1_collected = '0' THEN
+			   --if character touches coin....flag that the coin is collected
+	           IF (frog_x + size >= coin1_x - coin_size) AND (frog_x <= coin1_x + coin_size + size) AND
+	              (frog_y + size >= coin1_y - coin_size) AND (frog_y <= coin1_y + coin_size + size) THEN
+	               coin1_collected <= '1';
+			   		--safety check to make sure score isnt over 8 bit limit (255) before adding--> we ended up switching score so it never passes this anyway but just kept the check in
+	               IF s_score <= "11110101" THEN -- <= 245
+					   --add 10 to score when coin is collected
+	                   s_score <= s_score + 10;
+	               END IF;
+	           END IF;
+	       END IF;
+
+-- Repeated this logic for all three coins
+```
+#### Leddec.vhd
+```
+USE IEEE.STD_LOGIC_UNSIGNED.ALL; --added this library so could do math with the score
+
+-- signals created to help calculate the score as an integer 
+SIGNAL temp_score : INTEGER RANGE 0 TO 255;
+SIGNAL hundreds : INTEGER RANGE 0 TO 9;
+SIGNAL tens : INTEGER RANGE 0 TO 9;
+SIGNAL ones : INTEGER RANGE 0 TO 9;
+
+-- converts the binary score to decimal numbers and store the digit of each tens place so it can be displayed 
+temp_score <= CONV_INTEGER(f_data);
+hundreds <= temp_score / 100;
+tens <= (temp_score / 10) MOD 10;
+ones <= temp_score MOD 10;
+--------------------------------------------------------------------------------------------------------------------------------
+- Select what number will be displayed 
+
+    data4 <= 
+             -- Score digits
+            -- ones place score digits
+             "0000" WHEN (win = '0' AND dig = "000" AND ones = 0) ELSE --0 
+             "0001" WHEN (win = '0' AND dig = "000" AND ones = 1) ELSE --1
+             "0010" WHEN (win = '0' AND dig = "000" AND ones = 2) ELSE --2 
+             "0011" WHEN (win = '0' AND dig = "000" AND ones = 3) ELSE --3
+             "0100" WHEN (win = '0' AND dig = "000" AND ones = 4) ELSE --4
+             "0101" WHEN (win = '0' AND dig = "000" AND ones = 5) ELSE --5
+             "0110" WHEN (win = '0' AND dig = "000" AND ones = 6) ELSE --6
+             "0111" WHEN (win = '0' AND dig = "000" AND ones = 7) ELSE --7
+             "1000" WHEN (win = '0' AND dig = "000" AND ones = 8) ELSE --8 
+             "1001" WHEN (win = '0' AND dig = "000" AND ones = 9) ELSE -- 9
+
+            -- tens place score digits
+             "0000" WHEN (win = '0' AND dig = "001" AND tens = 0) ELSE --00
+             "0001" WHEN (win = '0' AND dig = "001" AND tens = 1) ELSE --10
+             "0010" WHEN (win = '0' AND dig = "001" AND tens = 2) ELSE --20
+             "0011" WHEN (win = '0' AND dig = "001" AND tens = 3) ELSE --30
+             "0100" WHEN (win = '0' AND dig = "001" AND tens = 4) ELSE --40
+             "0101" WHEN (win = '0' AND dig = "001" AND tens = 5) ELSE --50
+             "0110" WHEN (win = '0' AND dig = "001" AND tens = 6) ELSE --60
+             "0111" WHEN (win = '0' AND dig = "001" AND tens = 7) ELSE --70
+             "1000" WHEN (win = '0' AND dig = "001" AND tens = 8) ELSE --80
+             "1001" WHEN (win = '0' AND dig = "001" AND tens = 9) ELSE --90
+
+            --hundreds place score digits (didnt end up needing these because we changed our scoring process to be lower)
+             "0000" WHEN (win = '0' AND dig = "010" AND hundreds = 0) ELSE --000
+             "0001" WHEN (win = '0' AND dig = "010" AND hundreds = 1) ELSE --100
+             "0010" WHEN (win = '0' AND dig = "010" AND hundreds = 2) ELSE --200
+             "1111";
+```
+
+**3. Created Wrap Around Feature When Character Reaches A Screen Edge**
+- The starter code didn’t account for when the player reached the edge of the screen. Your character could move indefinitely to the left and right off the screen and either come all the way back or reset to get your character back visually on the screen. We updated the code to include a horizontal wrap-around feature that prevents the character from disappearing off the edges of the screen. This was done by adding boundary checks for the frog’s x-position: if the frog moves past the right edge, its position is immediately reset to the left side of the screen, and if it moves past the left edge, it reappears at the right side. By replacing the previous hard boundaries with this wrap-around logic, the gameplay becomes smoother and more dynamic, allowing continuous movement across the screen without losing the character. This also enhances playability by ensuring the frog remains visible and follows similar game mechanics to arcade style games.
+#### Frog.vhd
+```
+-- added screen wrapping for left/right boundaries so character cant disappear off sides of screen
+IF frog_x > "01110000100" THEN -- > 900 --edge of right side of screen
+	frog_x <= "00000001010"; -- wrap to 10 (wrap to edge of left side of screen)
+ END IF;
+IF frog_x < "00000001010" THEN -- < 10 (edge of left side of screen)
+	frog_x <= "01110000100"; -- wrap to 900 (wrap to edge of right side of screen)
+END IF;
+```
+
+**4. Car Speed Varies (not every object moves at same speed)**
+- To make the game more challenging one of our goals was to have multiple cars as obstacles and specifically make them different speeds. This made timing crucial for the player as well as creating some easier and harder parts of the game. The starter code had five cars as obstacles but had all of them moving at the same speed. The previous code included the position and size of each car, set the constant car_size corresponding to the car’s width/height to 12 pixels. Also it created the signals car1_x and car1_y to store the car’s starting position on the screen and the signal car1_on to be used to indicate whether the current pixel being drawn falls within the car’s rectangular area these values tell the screen which pixels to light up as the car moves. We could keep this previous code because it functioned properly. We changed the car_x_motion for each car which allowed us to control how many pixels per frame they move and we made these different for each car therefore changing their speeds.
+#### Frog.vhd
+```
+CONSTANT car_size  : INTEGER := 12;
+SIGNAL car1_on : STD_LOGIC; -- indicates whether car1 is over current pixel position 
+SIGNAL car1_x  : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00000001010"; -- (10) x position on screen
+SIGNAL car1_y  : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00100101100"; -- (300) y position on screen
+SIGNAL car1_x_motion : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00000000011"; -- (3) speed car moves per frame
+SIGNAL car2_on : STD_LOGIC;
+SIGNAL car2_x  : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00000001010"; -- 10
+SIGNAL car2_y  : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00101011110"; -- 350
+SIGNAL car2_x_motion : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00000000100"; -- 4	
+SIGNAL car3_on : STD_LOGIC;
+SIGNAL car3_x  : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00000001010"; -- 10
+SIGNAL car3_y  : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00110010000"; -- 400
+SIGNAL car3_x_motion : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00000000101"; -- 5
+SIGNAL car4_on : STD_LOGIC;
+SIGNAL car4_x  : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00000010100"; -- 20
+SIGNAL car4_y  : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00010010110"; -- 150
+SIGNAL car4_x_motion : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00000000110"; -- 6	
+SIGNAL car5_on : STD_LOGIC;
+SIGNAL car5_x  : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00000011110"; -- 30
+SIGNAL car5_y  : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00011001000"; -- 200
+SIGNAL car5_x_motion : STD_LOGIC_VECTOR(10 DOWNTO 0) := "00000000111"; -- 7
+```
+
+**5. Added Functionality to Track if Player Won the Game**
+- While it was implied in the starter code that a player won the game once they reached the top of the screen, that code never actually indicated when a win occured and you could continue to move back down the screen and continue playing, essentially making it a game with no true way to win. To fix this, and make it so the player couldn't keep playing aimlessly after they won we added in functionality to track if a player won. To do this, we hierarchically mapped a win signal throughout our program through frog.vhd, leddec.vhd and up to  vga_top.vhd so the signal could be accessed at all levels of our project. A 1 meant the player won the game while a 0 meant that the game was still being played. Once a player got very close to the top of the screen we set the win flag to win to indicate a win. Furthermore, in the character drawing process we added an if statement to only draw the character when win was 0, so that the character would disappear once the game was won, which would signify to the player that the game was over. 
+
+#### frog.vhd
+```
+-- IN FROG ENTITY
+win_out   : OUT STD_LOGIC; -- added to track a win
+
+
+SIGNAL win : STD_LOGIC := '0'; -- (1 = win 0 = no win)
+
+-- added to assign signals to entity outputs
+win_out <= win;
+
+-- added to check for win condition
+IF frog_y <= "00000011110" THEN -- <= 30 (top of screen reached)
+	win <= '1'; -- set win flag to 1
+END IF;
+
+--in fdraw process win is used so character no longer appears once the game is won
+IF (frog_dead = '0' AND win = '0') THEN -- only draw character when alive and game not won 
+```
+
+#### vga_top.vhd
+```
+SIGNAL S_win : STD_LOGIC; --added to track win
+
+-- IN FROG COMPONENT
+win_out: OUT STD_LOGIC; --added to track win
+
+-- IN LEDDEC COMPONENT
+ win : IN STD_LOGIC; --added to detect win (1 = win, 0 = no win)
+
+-- IN PORT MAP FOR INSTANCE OF FROG
+win_out => S_win, --added for win tracking
+
+-- IN PORT MAP FOR INSTANCE OF LEDDEC
+win => S_win,	--added for win tracking
+```
+#### leddec.vhd
+```
+-- IN LEDDEC ENTITY
+win : IN STD_LOGIC; --added to track win
+
+-- note within the LEDDEC file we used to win signal to determine whether to display the score (code shown in modification 2) or whether to display a win message (code shown in modification 6)
+```
+
+**6. GOOD JOB Lights Up On Nexys 7-Segment Display When Player Wins**
+- A winning feedback feature was added to enhance the player’s experience by displaying a celebratory “GOOD JOB” message on the seven-segment displays when the win condition is met. In Leddec.vhd, the logic checks whether the win signal is active and then outputs specific 4-bit codes to the display driver based on the current digit being updated. Each digit corresponds to a segment pattern that forms the letters G-O-O-D-J-O-B across the available display positions. By assigning these coded values only when win = '1', the hardware automatically switches from showing the score to showing the message as soon as the player reaches the goal. This addition provides immediate visual feedback, making the game feel more complete.
+#### Leddec.vhd
+```
+ dig : IN STD_LOGIC_VECTOR (2 DOWNTO 0); --changed from 1 downto 0 to 2 downto 0 to make it 8 bits so could expand display to say good job when win
+
+	data4 <= "1010" WHEN (win = '1' AND dig = "000") ELSE -- b 
+		"0000" WHEN (win = '1' AND dig = "001") ELSE -- O
+		"1101" WHEN (win = '1' AND dig = "010") ELSE -- J 
+        "1011" WHEN (win = '1' AND dig = "011") ELSE -- d
+        "0000" WHEN (win = '1' AND dig = "100") ELSE -- O
+        "0000" WHEN (win = '1' AND dig = "101") ELSE -- O
+        "1100" WHEN (win = '1' AND dig = "110") ELSE -- G
+
+-- 7-segment decoder shows which part of the board digit to light up (0 = on, 1 = off)
+                 --key for the bits: top, right top, right bottom, bottom, bottom-left, top-left, middle
+    seg <= "0000001" WHEN data4 = "0000" ELSE -- 0
+           "1001111" WHEN data4 = "0001" ELSE -- 1
+           "0010010" WHEN data4 = "0010" ELSE -- 2
+           "0000110" WHEN data4 = "0011" ELSE -- 3
+           "1001100" WHEN data4 = "0100" ELSE -- 4
+           "0100100" WHEN data4 = "0101" ELSE -- 5
+           "0100000" WHEN data4 = "0110" ELSE -- 6
+           "0001111" WHEN data4 = "0111" ELSE -- 7
+           "0000000" WHEN data4 = "1000" ELSE -- 8
+           "0000100" WHEN data4 = "1001" ELSE -- 9
+           "1100000" WHEN data4 = "1010" ELSE -- b
+           "1000010" WHEN data4 = "1011" ELSE -- D
+           "0100001" WHEN data4 = "1100" ELSE -- G
+           "1000111" WHEN data4 = "1101" ELSE -- J 
+           "1111111";
+
+- Digit enable (active low) (letting 7 of the digits light up) --> tells which digits to light up
+    anode <= "11111110" WHEN dig = "000" ELSE --rightmost position
+             "11111101" WHEN dig = "001" ELSE
+             "11111011" WHEN dig = "010" ELSE
+             "11110111" WHEN dig = "011" ELSE
+             "11101111" WHEN dig = "100" ELSE
+             "11011111" WHEN dig = "101" ELSE
+             "10111111" WHEN dig = "110" ELSE --leftmost position (where the G is for good job)
+             "11111111";
+```
+
+**7. Bottom Right Nexys Board LED Lights Up Green When Player Wins**
+- A visual win indicator was added by connecting the board’s bottom-right green LED to the game’s win signal, providing an additional celebratory indicator when the player reaches the top of the screen. In frog.vhd, the LED output was created and directly assigned to the win flag, which becomes ‘1’ when the frog’s y-position reaches the top boundary. This output was then routed through the project hierarchy, first declared in the vga_topProject.vhd entity, then included in the FROG component, and mapped appropriately in the port connections. This way the win signal can be driven all the way out to the board hardware. The corresponding pin assignment was added in frogger.xdc to set LED signal to the correct physical pin. With this update, the LED lights up green as soon as the player wins, creating a simple but effective indictor of vicotory in addition to the "Good Job".
+#### Frog.vhd
+```
+IN FROG ENTITY
+LED: out std_logic; --added for our new output from board to code (bottom right led turns green when win)
+---------------------------------------------------------------------------------------------------------
+
+LED <= win; --added for green led when win
+
+ IF frog_y <= "00000011110" THEN -- <= 30 (top of screen reached)
+ 	win <= '1'; -- set win flag to 1
+END IF;
+```
+
+#### Frogger.xdc
+```
+#led (in bottom right of board) --> output
+set_property -dict { PACKAGE_PIN H17   IOSTANDARD LVCMOS33 } [get_ports { LED }]; #IO_L18P_T2_A24_15 Sch=led[0] --> changed name to just LED since only using 1 dont need a vector
+```
+
+#### vga_top.vhd 
+```
+-- IN vga_top ENTITY 
+LED: out std_logic; --added for new led output (bottom right led lights up green when win)
+
+-- IN COMPONENT FROG 
+LED: out std_logic; --added for led output (bottom right led lights up when win)
+
+-- IN PORT MAP FOR FROG INSTANCE
+LED => LED, --added for win game led
+```
 
 **8. Background Set Up To Resemble Roads And Grass**
 - The starter code featured a simple black background for the game. To make the game better resemble crossy road we used stripes of green and dark gray to make the game background look like grass and roads. To achieve this, we created 5 new signals, each to represent a portion of our background. From bottom to top, we pictured the game being created with grass, road, grass, road, grass so we named the signals accordingly. Then we wrote a process to indicate for which rows of the screen each signal should be turned on for drawing. Note that the actual drawing and color process for all our graphics is mentioned in modification 12 below. The general positioning we chose is: 
