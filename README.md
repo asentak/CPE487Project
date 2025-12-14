@@ -2,6 +2,8 @@
 ## Crossy Road
 ![CrossyRoadImage](images/CrossyRoadBaseImage.jpg)
 
+### Our Game
+![VHDL Crossy Road Image](https://github.com/asentak/CPE487Project/blob/main/images/VHDLCrossyRoad.jpg)
 ### Demo Videos
 - [Character Switching](https://youtube.com/shorts/Pp7JuwL5YC4?feature=share)
 - [Gameplay Win + Screen Wrap Around Feature](https://youtube.com/shorts/CF8CdyUG-Aw?feature=share)
