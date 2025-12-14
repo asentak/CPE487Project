@@ -44,7 +44,10 @@ This project aims to mimic the functionality of Crossy Road: a game where a char
 ![CableImage](images/Cable.png)
 
 3. Micro USB Cable (Connection from Board to Computer
-4. Monitor
+
+![MicroUSB](images/microusb.png)
+
+5. Monitor
 
 ![Monitor Image](images/monitor)
 
