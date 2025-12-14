@@ -47,7 +47,7 @@ This project aims to mimic the functionality of Crossy Road: a game where a char
 
 ![MicroUSB](images/microusb.png)
 
-5. Monitor
+4. Monitor
 
 ![Monitor Image](images/monitor)
 
