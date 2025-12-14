@@ -1,6 +1,28 @@
-# CPE487 Project
-## Crossy Road
+# CPE 487 Final Project: Crossy Road
+**Arden Sentak and Kyra Fischer**
+*We pledge our honor that we have abided by the Stevens Honor System.*
+
+A 2D game created using VHDL inspired by the game "Crossy Road" 
 ![CrossyRoadImage](images/CrossyRoadBaseImage.jpg)
+
+--- 
+
+## Project Overview 
+This project aims to mimic the functionality of Crossy Road: a game where a character jumps across grass and roads and avoids obstacles like cars, trees, rocks, and water. The objective is to make it safely across the screen by avoiding obstacles and collect coins on the way to maximize your score. 
+
+### Expected Behavior
+- When the game loads in, the monitor will display the Crossy-Road game map which consists of grass, roads, moving cars, coins, and obstacles. In addition the game character will be loaded in at the bottom center of the screen
+- Using switches 0-4 on the Nexys board, the player can flip a switch upwards to select their game character 
+- The character can be moved around the screen using the following buttons (BTNU, BTND, BTNL, BTNR) to move forward, backward, left, and right, respectively
+- At any time the player can press the BTNC button to reset the game and start over
+- Each time the character moves forward to a new position the game score will increase by 1
+- When the character collects a coin, the game score will increase by 10
+- If the character collides with a car or a puddle, the game will be over and the character will disappear. The game can be restarted by pressing BTNC
+- If the character collides with a rock or a tree, they will bounce of the obstacle and be sent back to their previous position
+- Once the character reaches the top of the screen, the character will disappear and the Nexys board will display a "good job" message & a green LED will light up to indicate the player won the game
+
+### Game Functionality Block Diagram 
+![Game Functionality Block Diagram](https://github.com/asentak/tester/blob/main/Frogger%20System%20Diagram.jpg)
 
 ### Our Game
 ![VHDL Crossy Road Image](https://github.com/asentak/CPE487Project/blob/main/images/VHDLCrossyRoad.jpg)
@@ -10,6 +32,32 @@
 - [Car Collision](https://youtube.com/shorts/PBwyS4DZcIo?feature=share)
 - [Puddle Collision + Reset Gameplay](https://youtube.com/shorts/j9jCg9TkhcI?feature=share)
 - [Obstacle Bounce Off (Trees and Rocks) + Showing Score Only Increases For New Forward Progress](https://youtube.com/shorts/9dyAyl_ouWI?feature=share)
+
+## Required Equipment
+(INCLUDE PICTURES ON ACTUAL GITHUB) 
+1. Nexys A7 Board
+2. VGA to HDML Cable
+3. Micro USB Cable
+4. Monitor
+
+## Project Setup Steps
+1. Download the following files from the project code folder on our GitHub: vga_top.vhd, frog.vhd, vga_sync.vhd, leddec.vhd and frogger.xdc
+2. Create a new RTL project called CrossyRoad in Vivado Quick Start
+	- In the "add sources" section upload the four .vhd files you downloaded 
+	- In the "add constraints" section upload the .xdc file you downloaded
+	- In the "Default Part" section, click on "Boards" and select the Neyxs A7-100T board
+	- Click 'Finish'
+3. Plug in the HDMI part of cable into monitor and VGA side into the board as well as the audio plug and usb plug
+4. Plug in Nexys A7 micro-usb cable into the board and the computer to create connection
+5. Ensure that the Nexys board in turned on
+6. Run synthesis
+7. Run implementation
+8. Generate bitstream, open hardware manager, and program device
+	- Click 'Generate Bitstream'
+	- Click 'Open Hardware Manager' and click 'Open Target' then 'Auto Connect'
+	- Click 'Program Device' then xc7a100t_0 to download vga_top.bit to the Nexys A7 board
+9. Once the device is programmed, the project will appear on the screen
+
 ## Inputs and Ouputs 
 - Most inputs and outputs included in our project files were taken from the starter code. However we added the inputs/outputs regarding the LED, switches (sw), and the win flag.
 	- The win flag was added to tell our program when the game was won so that it could display a win message on the board
