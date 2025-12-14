@@ -173,4 +173,55 @@ A few other files were included in the starter code project that we did not use 
 <br> We made the following modifications to our code: 
 <br>
 
+## Development Process
+
+#### Development Timeline
+**Week of 11/13**
+- Finished brainstorming concepts and goals for project
+- Investigated starter code (Played around with previous project)
+	- Found what we liked and wanted to fix <br>
+
+**Week of 11/17**
+- Added in new game functionality (wrap around screen, changing jumping instead of gliding)
+- Finished up most of graphics (grass & roads for background, puddles, cars, duck character)
+- Added in new scoring, made it possible to win the game + made a good job sign to track win when get to top of screen
+ <br>
+
+**Week of 11/24**
+- Added in obstacles (trees and rocks to game)
+- Added better comments to code for readability <br>
+
+**Week of 12/1**
+- Added frog, pig, christmas tree, & pumpkin characters + implemented changing characters using switches
+- Added bottom right LED lighting up green when win is accomplished
+- Completed code portion of project
+- Began outlining Github
+
+**Week of 12/8**
+- Cleaned up code + comments
+- Finished Github repository
+
+#### Responsibilities
+
+
+
+**Arden** <br>
+8. Background Set Up To Resemble Roads And Grass <br>
+9. Puddles Objects Created In Place of the River (Game Ends if Character Jumps in a Puddle) <br>
+10. Shapes Of Game Characters, Cars, and Obstacles (Rocks & Trees) Created <br>
+11. Trees and Rock Obstacles Drawn Into Game + Logic Created So Character Bounces Off These Objects <br>
+12. Change Character using Switch 0, 1, 2, 3, 4 + Draw Selected Game Character <br>
+13. Code Written To Ensure Graphic Display Layers Show Up Correctly <br>
+
+#### Difficulties Encountered
+1. Making our board display a win message
+	- We initially wanted our board to say "win" when the player won the game. However, when we actually looked at the 7 segment display we realized we couldn't make a W. To solve this issue, we thought of other words/phrases that could signify a win that had letters that could be created on the 7 segment display. We ended up using "GOOD JOB" since all these letters were able to be created. <br>
+2. Figuring out how to incorporate a water element into our game
+	- The classic crossy road game has a river where the character can jump across moving logs to safely cross it. We were having difficulties implementing the moving logs for the character to cross safely while still making it so if they touched the water they would die. Because of this we tried to implement just a stationary river with a bridge to get across it, but we weren't please with how it looked. Therefore, to still add some kind of water element we removed the river and switched it to puddles, which were more visually pleasing. <br>
+3. Designing our game characters
+	- Since we used binary maps to create the shape of our characters, it was hard to add a ton of detail to them to make them resemble what they were supposed to be. To deal with this, we designed all the characters from a front-facing viewpoint and just did a simple recognizable shape outline and face. <br>
+4. Adding new hardware inputs
+	- One of the requirements for this project was if using starting code, add at least one new input & one new output from the Nexys board to the project code to demonstrate an understanding of modifying ports. Since all the buttons were used in our starter code, we had difficulty figuring out what new input we could add to our game that made sense. We ended up choosing to add the switches as inputs and implement a character switching feature to resolve this. <br>
+5. Making score add 1 for every new hop forward
+	- Initially when we added logic for adding 1 to score every time the character hops forward we didn't account for the fact that if you hopped backward then forward again the score would still increase by 1. This left a bug where players could get an infinite score by just hopping backward and forward over and over again. To fix this, we created a signal to track the furthest forward position that the character had crossed. Then we ensured the score would only increase by 1 if the character had hopped to a forward position that was further than any forward progess they had previously made. 
 
