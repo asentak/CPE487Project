@@ -37,12 +37,12 @@ This project aims to mimic the functionality of Crossy Road: a game where a char
 ## Required Equipment
 (INCLUDE PICTURES ON ACTUAL GITHUB) 
 1. Nexys A7 Board
-![Game Functionality Block Diagram](https://github.com/asentak/CPE487Project/images/)
+![NexyA7 Board Image](https://github.com/asentak/CPE487Project/images/NexyA7Board.png)
 3. VGA to HDML Cable
-![Game Functionality Block Diagram](https://github.com/asentak/CPE487Project/images/)
+![Cable Image](https://github.com/asentak/CPE487Project/images/Cable.png)
 5. Micro USB Cable
 6. Monitor
-![Game Functionality Block Diagram](https://github.com/asentak/CPE487Project/images/)
+![Monitor Image](https://github.com/asentak/CPE487Project/images/monitor)
 
 
 ## Project Setup Steps
