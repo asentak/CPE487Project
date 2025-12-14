@@ -156,3 +156,8 @@ INPUTS:
 - anode: controls which display is activated (to vga_top then board)
 - seg: controls which segments of the display light up (to vga_top then board)
 
+## Module Hierarchy & File Description
+![Module Hierarchy Diagram](https://github.com/asentak/CPE487Project/blob/main/images/CPE487%20Project%20Module%20Hierarchy.jpg)
+
+
+
