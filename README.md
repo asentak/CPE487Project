@@ -159,5 +159,18 @@ INPUTS:
 ## Module Hierarchy & File Description
 ![Module Hierarchy Diagram](https://github.com/asentak/CPE487Project/blob/main/images/CPE487%20Project%20Module%20Hierarchy.jpg)
 
+## Modifications
+We used the following [2025 Spring Frogger project](https://github.com/UsuarioDelNet/487FinalProject) as the starting point for our project. Our starter code consisted of the following files from this project: 
+- [frog.vhd](https://github.com/asentak/CPE487Project/blob/main/starterCode/frog.vhd): main file to hold all of the game logic
+- [leddec.vhd](https://github.com/asentak/CPE487Project/blob/main/starterCode/leddec.vhd): file to control the 8 digit 7-segment display on the Nexys board
+- [vga_sync.vhd](https://github.com/asentak/CPE487Project/blob/main/starterCode/vga_syncProject.vhd): generates VGA timing signals and pixel coordinates for graphics display.
+- [vga_top.vhd](https://github.com/asentak/CPE487Project/blob/main/starterCode/vga_topProject.vhd): top level file to integrate the game logic, display, and VGA
+- [frogger.xdc](https://github.com/asentak/CPE487Project/blob/main/starterCode/frogger.xdc): constraints file to define Nexys hardware inputs/outputs & their connection to the code
+ <br>
+A few other files were included in the starter code project that we did not use since they weren't fully integrated into the starter project yet and we did not need those aspects for our crossy road game anyway. <br>
+
+
+<br> We made the following modifications to our code: 
+<br>
 
 
