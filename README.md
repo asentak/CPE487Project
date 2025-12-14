@@ -2,6 +2,12 @@
 ## Crossy Road
 ![CrossyRoadImage](images/CrossyRoadBaseImage.jpg)
 
+### Demo Videos
+- [Character Switching](https://youtube.com/shorts/Pp7JuwL5YC4?feature=share)
+- [Gameplay Win + Screen Wrap Around Feature](https://youtube.com/shorts/CF8CdyUG-Aw?feature=share)
+- [Car Collision](https://youtube.com/shorts/PBwyS4DZcIo?feature=share)
+- [Puddle Collision + Reset Gameplay](https://youtube.com/shorts/j9jCg9TkhcI?feature=share)
+- [Obstacle Bounce Off (Trees and Rocks)](https://youtube.com/shorts/9dyAyl_ouWI?feature=share)
 ## Inputs and Ouputs 
 - Most inputs and outputs included in our project files were taken from the starter code. However we added the inputs/outputs regarding the LED, switches (sw), and the win flag.
 	- The win flag was added to tell our program when the game was won so that it could display a win message on the board
