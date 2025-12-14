@@ -35,17 +35,16 @@ This project aims to mimic the functionality of Crossy Road: a game where a char
 - [Obstacle Bounce Off (Trees and Rocks) + Showing Score Only Increases For New Forward Progress](https://youtube.com/shorts/9dyAyl_ouWI?feature=share)
 
 ## Required Equipment
-(INCLUDE PICTURES ON ACTUAL GITHUB) 
 1. Nexys A7 Board
 
 ![NexyA7BoardImage](images/NexyA7Board.png)
 
-3. VGA to HDML Cable
+2. VGA to HDML Cable
 
 ![CableImage](images/Cable.png)
 
-5. Micro USB Cable
-6. Monitor
+3. Micro USB Cable (Connection from Board to Computer
+4. Monitor
 
 ![Monitor Image](images/monitor)
 
