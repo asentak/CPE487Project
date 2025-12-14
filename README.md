@@ -1365,8 +1365,14 @@ sw => sw --added for switches for character changes
 - Finished Github repository
 
 #### Responsibilities
-
-
+**Kyra**
+1.  Replaced Gliding Character Movement With Hopping
+2. Scoring Changed To +1 For Each New Hop Forward & +10 For Each Coin Collected
+3. Created Wrap Around Feature When Character Reaches A Screen Edge
+4. Car Speed Varies (not every object moves at same speed)
+5. Added Functionality to Track if Player Won the Game
+6. GOOD JOB Lights Up On Nexys 7-Segment Display When Player Wins
+7. Bottom Right Nexys Board LED Lights Up Green When Player Wins
 
 **Arden** <br>
 8. Background Set Up To Resemble Roads And Grass <br>
