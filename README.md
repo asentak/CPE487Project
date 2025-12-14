@@ -1,5 +1,6 @@
 # CPE 487 Final Project: Crossy Road
 **Arden Sentak and Kyra Fischer**
+
 *We pledge our honor that we have abided by the Stevens Honor System.*
 
 A 2D game created using VHDL inspired by the game "Crossy Road" 
